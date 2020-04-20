@@ -7,7 +7,7 @@
 #define PI 3.1415926535897932
 #define EXP 2.7182818284590452
 
-
+//Checking
 double Calculate(char* string, int size_string, int* err_code) {
     double answer = 0;
     int size_numbers = 0, priority_index = 0, num1_index = 0, num2_index = 0, operation = 0, findInd_code = 0, compution = 0;
