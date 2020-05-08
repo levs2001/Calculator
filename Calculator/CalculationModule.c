@@ -1,6 +1,6 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-//-V2008_CYCLOMATIC_COMPLEXITY=50
+
 #include "calculationModule.h"
 #include <stdlib.h>
 #include <ctype.h>
@@ -173,7 +173,7 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 	double* temp_numbers = NULL;
 	char* end;
 	for (int i = 0; i < size_string; i++) {
-		if (isdigit(string[i]) != 0 || string[i] == 'p' || (string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) || (isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0))) {
+		if (CheckForNumFunc(string, size_string, i) == 1) {
 			if (string[i] == 'p' && string[i + 1] == 'i') {
 				numbers[0] = PI;
 				size_numbers++;
@@ -210,7 +210,7 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 	}
 	for (int i = point; i < size_string; i++) {
 		if (!(i - 2 >= 0 && isdigit(string[i - 2]) != 0 && string[i - 1] == 'e')) {
-			if (string[i] == '+' || string[i] == '-' || string[i] == '/' || string[i] == '*' || string[i] == '^' || string[i] == '(' || string[i] == ')' || string[i] == ',') {
+			if (CheckForSign(string,i) == 1) {
 				if (i == size_string - 1 && i != 0) {
 					if (string[i] == ')') {
 						*_size_numbers = size_numbers;
@@ -223,7 +223,7 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 						return 3;
 					}
 				}
-				while ((i < size_string - 1 && isdigit(string[i]) == 0) && !(i < size_string - 1 && string[i] == 'p' && string[i + 1] == 'i') && !(string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) && !(isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0))) {
+				while (CheckForGoingStringInNumbers(string, size_string, i) == 1) {
 					i++;
 				}
 				if (i != size_string) {
@@ -289,6 +289,28 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 	}
 	(*_size_numbers) = size_numbers;
 	(*numbers_pointer) = numbers;
+	return 0;
+}
+
+int CheckForNumFunc(char* string, int size_string, int i) {
+	if (isdigit(string[i]) != 0 || string[i] == 'p' || (string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) || (isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0))) {
+		return 1;
+	}
+	return 0;
+}
+
+int  CheckForSign(char* string, int i) {
+	if (string[i] == '+' || string[i] == '-' || string[i] == '/' || string[i] == '*' || string[i] == '^' || string[i] == '(' || string[i] == ')' || string[i] == ',') {
+		return 1;
+	}
+	return 0;
+}
+
+
+int CheckForGoingStringInNumbers(char* string, int size_string, int i) {
+	if((i < size_string - 1 && isdigit(string[i]) == 0) && !(i < size_string - 1 && string[i] == 'p' && string[i + 1] == 'i') && !(string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) && !(isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0))) {
+		return 1;
+	}
 	return 0;
 }
 

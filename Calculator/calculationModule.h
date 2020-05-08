@@ -24,3 +24,6 @@ int FindLog(char* string, int size_string, int* _priority_index);
 double Plog(double a, double b);
 int CheckList(char* string, int* size_string, double* result, char* name);
 int FindVariable(char sym, VARIABLES* variable, int sizeVariables);
+int CheckForNumFunc(char* string, int size_string, int i);
+int  CheckForSign(char* string, int i);
+int CheckForGoingStringInNumbers(char* string, int size_string, int i);
