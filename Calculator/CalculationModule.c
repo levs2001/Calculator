@@ -21,6 +21,13 @@ double Calculate(char* string, int size_string, int* err_code) {
 	double* numbers = NULL, * temp_numbers = NULL;
 	VARIABLES* variable = NULL, * temp_variable = NULL;
 
+
+	if (CheckLexic(string, size_string) == -1) {
+		*err_code = 11;
+		return answer;
+	}
+	DeleteSpaces(string, &size_string);
+
 	//Обрабатываем наши переменные x, y,z
 	variable = malloc(sizeof(VARIABLES));
 	if (variable == NULL) {
@@ -37,10 +44,7 @@ double Calculate(char* string, int size_string, int* err_code) {
 		variable = temp_variable;
 	}
 
-	if (CheckLexic(string, size_string) == -1) {
-		*err_code = 11;
-		return answer;
-	}
+	
 
 	temp_numbers = realloc(numbers, sizeof(double) * (size_numbers + 1));
 	//temp_numbers = NULL; /////////////////////
@@ -51,8 +55,7 @@ double Calculate(char* string, int size_string, int* err_code) {
 	numbers = temp_numbers;
 
 
-	DeleteSpaces(string, &size_string);
-
+	
 	if (CheckExp(string, size_string) == -1) {
 		*err_code = 12;
 		free(numbers);
@@ -938,7 +941,7 @@ int CheckList(char* string, int* size_string, double* result, char* name) {
 			*name = string[beginE - 1];
 		else
 			return -3;
-
+		
 		for (int i = beginE - 1; i <= endE; i++) {
 			string[i] = ' ';
 		}
