@@ -84,6 +84,9 @@ double Calculate(char* string, int size_string, int* err_code) {
 				*err_code = 6;
 				break;
 			}
+			else {
+				//no
+			}
 
 
 			if (size_string == 0) {
@@ -93,7 +96,7 @@ double Calculate(char* string, int size_string, int* err_code) {
 				*err_code = 9;
 				return answer;
 			}
-			else if (size_string != 1) //Эта проверка нужна поскольку FindPriority может изменить размер массива в случае с унарным минусом
+			else if (size_string != 1) { //Эта проверка нужна поскольку FindPriority может изменить размер массива в случае с унарным минусом
 			  //Сюда добавляем if для случая если FindPriority указал на функцию
 				if (operation == 0) {
 					if (priority_index == -1 || priority_index == 0) {
@@ -132,20 +135,30 @@ double Calculate(char* string, int size_string, int* err_code) {
 						*err_code = 6;
 						break;
 					}
+					else {
+						//no
+					}
 
 				}
+			}
+			else {
+				//no
+			}
 		}
 
 		answer = numbers[0];
 
-		if (isinf(answer) != 0)
+		if (isinf(answer) != 0) {
 			*err_code = 3;
+		}
 
-		if (isnan(answer) != 0)
+		if (isnan(answer) != 0) {
 			*err_code = 4;
+		}
 
-		if (isdigit(string[0]) == 0 && (*err_code) == 0)
+		if (isdigit(string[0]) == 0 && (*err_code) == 0) {
 			*err_code = 9;
+		}
 	}
 	free(numbers);
 	free(variable);
@@ -158,6 +171,7 @@ double Calculate(char* string, int size_string, int* err_code) {
 int RecordNumbers(char* string, int size_string, double numbers[], int* _size_numbers, double** numbers_pointer, VARIABLES* variable, int sizeVariables) {
 	int size_numbers = 0, point = 0, numVar = -1;
 	double* temp_numbers = NULL;
+	char* end;
 	for (int i = 0; i < size_string; i++) {
 		if (isdigit(string[i]) != 0 || string[i] == 'p' || (string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) || (isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0))) {
 			if (string[i] == 'p' && string[i + 1] == 'i') {
@@ -173,7 +187,7 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 				break;
 			}
 			else if (isdigit(string[i]) != 0) { //проверить вот этот момент
-				numbers[0] = atof(string + i);
+				numbers[0] = strtod(string + i,&(end)); ///Здесь был atof
 				size_numbers++;
 				point = i + 1;
 				break;
@@ -187,6 +201,9 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 					break;
 				}
 
+			}
+			else {
+				//no
 			}
 
 		}
@@ -206,9 +223,9 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 						return 3;
 					}
 				}
-				while ((i < size_string - 1 && isdigit(string[i]) == 0) && !(i < size_string - 1 && string[i] == 'p' && string[i + 1] == 'i') && !(string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) && !(isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0)))
+				while ((i < size_string - 1 && isdigit(string[i]) == 0) && !(i < size_string - 1 && string[i] == 'p' && string[i + 1] == 'i') && !(string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) && !(isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0))) {
 					i++;
-
+				}
 				if (i != size_string) {
 					if (i < size_string - 1 && string[i] == 'p' && string[i + 1] == 'i') {
 						temp_numbers = realloc(numbers, sizeof(double) * (size_numbers + 1));
@@ -243,7 +260,7 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 						}
 						numbers = temp_numbers;
 
-						numbers[size_numbers] = atof(string + i);
+						numbers[size_numbers] = strtod(string + i, &(end)); //Здесь был atof
 						size_numbers++;
 					}
 					else if (isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0)) {
@@ -262,6 +279,9 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 						}
 
 					}
+					else {
+						//no
+					}
 
 				}
 			}
@@ -275,11 +295,14 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 
 int DeleteSpaces(char* string, int* _size_string) {
 	int spaces_counter = 0;
-	for (int i = 0; i < *_size_string + 1; i++)
-		if (isspace(string[i]))
+	for (int i = 0; i < *_size_string + 1; i++) {
+		if (isspace(string[i])) {
 			spaces_counter++;
-		else
+		}
+		else {
 			string[i - spaces_counter] = string[i];
+		}
+	}
 	(*_size_string) -= spaces_counter;
 	return 0;
 }
@@ -296,9 +319,13 @@ int MakeExpressionsString(char* string, int* _size_string, VARIABLES* variable, 
 						string[i + 1] = ' ';
 						i += 2;
 					}
-					else return 5;
+					else {
+						return 5;
+					}
 				}
-				else return 5;
+				else {
+					return 5;
+				}
 			}
 			else if (string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == (*_size_string) || isalpha(string[i + 1]) == 0)) {
 				string[i] = '0';
@@ -337,9 +364,11 @@ int MakeExpressionsString(char* string, int* _size_string, VARIABLES* variable, 
 int FindPriority(char* string, int* _size_string, int* _priority_index, double* numbers) {
 	int priority_index = -1, begin = 0, end = *_size_string, hooksState = 0, func_number = -1;
 
-	while ((hooksState = HooksTest(string, _size_string, &begin, &end)) != 0)
-		if (hooksState == 2)
+	while ((hooksState = HooksTest(string, _size_string, &begin, &end)) != 0) {
+		if (hooksState == 2) {
 			return -1;
+		}
+	}
 
 	for (int i = begin; i < end; i++) {
 		if (string[i] == '+' || string[i] == '-') {
@@ -362,8 +391,9 @@ int FindPriority(char* string, int* _size_string, int* _priority_index, double* 
 	}
 
 	func_number = FindFunc(string + begin, end - begin, _priority_index);
-	if (func_number == -1)
+	if (func_number == -1) {
 		return -2;
+	}
 	if (func_number != 0) {
 		*_priority_index = (*_priority_index) + begin;
 		return func_number;
@@ -401,8 +431,9 @@ int FindPriority(char* string, int* _size_string, int* _priority_index, double* 
 			DeleteSpaces(string, _size_string);
 			FindPriority(string, _size_string, _priority_index, numbers);
 		}
-		else
+		else {
 			return -1;
+		}
 	}
 
 	return 0;
@@ -419,16 +450,20 @@ int FindLog(char* string, int size_string, int* _priority_index) {
 	}
 	if (priority_index - 5 >= 0) {
 		if (string[priority_index - 1] == '0' && string[priority_index - 2] == '(' && string[priority_index - 3] == 'g') {
-			if (string[priority_index - 4] == 'o' && string[priority_index - 5] == 'l')
+			if (string[priority_index - 4] == 'o' && string[priority_index - 5] == 'l') {
 				log_having = true;
-			else
+			}
+			else {
 				log_having = false;
+			}
 		}
-		else
+		else {
 			log_having = false;
+		}
 	}
-	else
+	else {
 		log_having = false;
+	}
 
 	if (log_having == true) {
 		return 0;
@@ -446,10 +481,12 @@ int ReadWord(char* string, int string_size, char* func, int* number_point) {
 		string_point++;
 	} while (string_point < string_size && isalpha(func[0]) == 0);
 
-	if (isalpha(func[0]) != 0)
+	if (isalpha(func[0]) != 0) {
 		func_point++;
-	else
+	}
+	else {
 		return -1;
+	}
 
 	do {
 		func[func_point] = string[string_point];
@@ -469,34 +506,47 @@ int FindFunc(char* string, int string_size, int* priority_index) {
 
 	if (ReadWord(string, string_size, func, &number_point) == 0) {
 		*priority_index = number_point;
-		if (strcmp(func, "sin") == 0)
+		if (strcmp(func, "sin") == 0) {
 			return 1;
-		else if (strcmp(func, "cos") == 0)
+		}
+		else if (strcmp(func, "cos") == 0) {
 			return 2;
-		else if (strcmp(func, "tg") == 0)
+		}
+		else if (strcmp(func, "tg") == 0) {
 			return 3;
-		else if (strcmp(func, "ctg") == 0)
+		}
+		else if (strcmp(func, "ctg") == 0) {
 			return 4;
-		else if (strcmp(func, "arcsin") == 0)
+		}
+		else if (strcmp(func, "arcsin") == 0) {
 			return 5;
-		else if (strcmp(func, "arccos") == 0)
+		}
+		else if (strcmp(func, "arccos") == 0) {
 			return 6;
-		else if (strcmp(func, "arctg") == 0)
+		}
+		else if (strcmp(func, "arctg") == 0) {
 			return 7;
-		else if (strcmp(func, "sqrt") == 0)
+		}
+		else if (strcmp(func, "sqrt") == 0) {
 			return 8;
-		else if (strcmp(func, "ln") == 0)
+		}
+		else if (strcmp(func, "ln") == 0) {
 			return 9;
-		else if (strcmp(func, "floor") == 0)
+		}
+		else if (strcmp(func, "floor") == 0) {
 			return 10;
-		else if (strcmp(func, "ceil") == 0)
+		}
+		else if (strcmp(func, "ceil") == 0) {
 			return 11;
-		else
+		}
+		else {
 			return -1;
+		}
 		///Возвращаем это в случае ошибки с обозначениями функций tg, ctg, arcsin, arccos, arctg
 	}
-	else
+	else {
 		return 0;
+	}
 }
 
 
@@ -506,9 +556,11 @@ int FindIndNumbers(char* string, int* size_string, int priority_index, int* _num
 
 	//Ищем индексы чисел из массива, которые должны быть вычислены
 
-	for (int i = 0; i < priority_index; i++)
-		if (isdigit(string[i]) != 0)
+	for (int i = 0; i < priority_index; i++) {
+		if (isdigit(string[i]) != 0) {
 			num1_index++;
+		}
+	}
 	num2_index = num1_index + 1;
 
 	//Проверяем всё ли ок со знаками и избавляемся от нескольких идущих подряд -
@@ -517,9 +569,11 @@ int FindIndNumbers(char* string, int* size_string, int priority_index, int* _num
 			string[priority_index] = ' ';
 			DeleteSpaces(string, size_string);
 			num1_index = -1;
-			for (int i = 0; i <= priority_index; i++)
-				if (isdigit(string[i]) != 0)
+			for (int i = 0; i <= priority_index; i++) {
+				if (isdigit(string[i]) != 0) {
 					num1_index++;
+				}
+			}
 			//num2_index = num1_index + 1;
 			num1_index = -num1_index;
 			*_num1_index = num1_index;
@@ -559,15 +613,17 @@ int Compute(char* string, int* size_string, int priority_index, double* numbers,
 	switch (string[priority_index]) {
 	case '^':
 		answer = pow(num1, num2);
-		if (isnan(answer) != 0)
+		if (isnan(answer) != 0) {
 			return -1;
+		}
 		break;
 	case '*':
 		answer = num1 * num2;
 		break;
 	case '/':
-		if (num2 == 0)
+		if (num2 == 0) {
 			return -1;
+		}
 		answer = num1 / num2;
 		break;
 	case '+':
@@ -576,13 +632,17 @@ int Compute(char* string, int* size_string, int priority_index, double* numbers,
 	case '-':
 		answer = num1 - num2;
 		break;
+	default:
+		//No
+		break;
 	}
 
 	//Меняем массив записывая туда ответ вместо двух слагаемых
 	///здесь что-то не так 
 	numbers[num1_index] = answer;
-	for (int i = 0; i < *size_numbers - num2_index - 1; i++)
+	for (int i = 0; i < *size_numbers - num2_index - 1; i++) {
 		numbers[num2_index + i] = numbers[num2_index + i + 1];
+	}
 	(*size_numbers)--;
 	//Меняем строку
 	string[priority_index] = ' ';
@@ -602,11 +662,14 @@ int ComputeFunc(char* string, int* size_string, double* numbers, int func_number
 		minus_flag = 1;
 	}
 
-	for (int i = 0; i <= stringPointOfNum; i++)
-		if (isdigit(string[i]) != 0)
+	for (int i = 0; i <= stringPointOfNum; i++) {
+		if (isdigit(string[i]) != 0) {
 			pointInNumbers++;
-	if (pointInNumbers < 0)
+		}
+	}
+	if (pointInNumbers < 0) {
 		return -2;
+	}
 
 	if (minus_flag == 1) {
 		numbers[pointInNumbers] = -numbers[pointInNumbers];
@@ -615,84 +678,107 @@ int ComputeFunc(char* string, int* size_string, double* numbers, int func_number
 	switch (func_number) {
 	case 1: //sin
 		numbers[pointInNumbers] = sin(numbers[pointInNumbers]);
-		for (int i = 1; i <= 3; i++)
+		for (int i = 1; i <= 3; i++) {
 			string[stringPointOfNum - i] = ' ';
+		}
 		break;
 	case 2: //cos
 		numbers[pointInNumbers] = cos(numbers[pointInNumbers]);
-		for (int i = 1; i <= 3; i++)
+		for (int i = 1; i <= 3; i++) {
 			string[stringPointOfNum - i] = ' ';
+		}
 		break;
 	case 3: //tg
 		numbers[pointInNumbers] = tan(numbers[pointInNumbers]);
-		for (int i = 1; i <= 2; i++)
+		for (int i = 1; i <= 2; i++) {
 			string[stringPointOfNum - i] = ' ';
+		}
 		break;
 	case 4: //ctg
-		if (numbers[pointInNumbers] == 0)
+		if (numbers[pointInNumbers] == 0) {
 			return -1;
+		}
 		numbers[pointInNumbers] = 1 / tan(numbers[pointInNumbers]);
-		for (int i = 1; i <= 3; i++)
+		for (int i = 1; i <= 3; i++) {
 			string[stringPointOfNum - i] = ' ';
+		}
 		break;
 	case 5: //arcsin
-		if (fabs(numbers[pointInNumbers]) > 1)
+		if (fabs(numbers[pointInNumbers]) > 1) {
 			return -1;
+		}
 		numbers[pointInNumbers] = asin(numbers[pointInNumbers]);
-		for (int i = 1; i <= 6; i++)
+		for (int i = 1; i <= 6; i++) {
 			string[stringPointOfNum - i] = ' ';
+		}
 		break;
 	case 6: //arccos
-		if (fabs(numbers[pointInNumbers]) > 1)
+		if (fabs(numbers[pointInNumbers]) > 1) {
 			return -1;
+		}
 		numbers[pointInNumbers] = acos(numbers[pointInNumbers]);
-		for (int i = 1; i <= 6; i++)
+		for (int i = 1; i <= 6; i++) {
 			string[stringPointOfNum - i] = ' ';
+		}
 		break;
 	case 7: //arctg
 		numbers[pointInNumbers] = atan(numbers[pointInNumbers]);
-		for (int i = 1; i <= 5; i++)
+		for (int i = 1; i <= 5; i++) {
 			string[stringPointOfNum - i] = ' ';
+		}
 		break;
 	case 8: //sqrt
-		if (numbers[pointInNumbers] < 0)
+		if (numbers[pointInNumbers] < 0) {
 			return -1;
+		}
 		numbers[pointInNumbers] = pow(numbers[pointInNumbers], 0.5);
-		for (int i = 1; i <= 4; i++)
+		for (int i = 1; i <= 4; i++) {
 			string[stringPointOfNum - i] = ' ';
+		}
 		break;
 	case 9: //ln
-		if (numbers[pointInNumbers] <= 0)
+		if (numbers[pointInNumbers] <= 0) {
 			return -1;
+		}
 		numbers[pointInNumbers] = log(numbers[pointInNumbers]);
-		for (int i = 1; i <= 2; i++)
+		for (int i = 1; i <= 2; i++) {
 			string[stringPointOfNum - i] = ' ';
+		}
 		break;
 	case 10: //floor
 		numbers[pointInNumbers] = floor(numbers[pointInNumbers]);
-		for (int i = 1; i <= 5; i++)
+		for (int i = 1; i <= 5; i++) {
 			string[stringPointOfNum - i] = ' ';
+		}
 		break;
 	case 11: //ceil
 		numbers[pointInNumbers] = ceil(numbers[pointInNumbers]);
-		for (int i = 1; i <= 4; i++)
+		for (int i = 1; i <= 4; i++) {
 			string[stringPointOfNum - i] = ' ';
+		}
 		break;
 	case 12: //log(0,0) ///////Нужна обработка ОДЗ
-		if (numbers[pointInNumbers] <= 0 || numbers[pointInNumbers + 1] <= 0 || numbers[pointInNumbers] == 1)
+		if (numbers[pointInNumbers] <= 0 || numbers[pointInNumbers + 1] <= 0 || numbers[pointInNumbers] == 1) {
 			return -1;
+		}
 		numbers[pointInNumbers] = Plog(numbers[pointInNumbers], numbers[pointInNumbers + 1]); ///Здесь должен быть не pow
 		//Меняем массив записывая туда ответ вместо двух слагаемых 
-		for (int i = 1; pointInNumbers + 1 + i < *size_numbers; i++)
+		for (int i = 1; pointInNumbers + 1 + i < *size_numbers; i++) {
 			numbers[pointInNumbers + i] = numbers[pointInNumbers + 1 + i];
+		}
 		(*size_numbers)--;
 
 		//Меняем строку, удаляя лог
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++) {
 			string[stringPointOfNum + i] = ' ';
-		for (int i = 2; i < 6; i++)
+		}
+		for (int i = 2; i < 6; i++) {
 			string[stringPointOfNum - i] = ' ';
+		}
 
+		break;
+	default:
+		//No
 		break;
 	}
 
@@ -716,19 +802,25 @@ int MinusFilter(char* string, int* size_string) {
 			if (minus_count > 1) {
 				if (minus_count % 2 == 0) {
 					if (i - minus_count != 0) {
-						if (string[i - minus_count - 1] == ')' || isdigit(string[i - minus_count - 1]) != 0 || isalpha(string[i - minus_count - 1]) != 0)
+						if (string[i - minus_count - 1] == ')' || isdigit(string[i - minus_count - 1]) != 0 || isalpha(string[i - minus_count - 1]) != 0) {
 							string[i - minus_count] = '+';
-						else
+						}
+						else {
 							string[i - minus_count] = ' ';
+						}
 					}
-					else
+					else {
 						string[i - minus_count] = ' ';
-					for (int k = minus_count - 1; k > 0; k--)
+					}
+					for (int k = minus_count - 1; k > 0; k--) {
 						string[i - k] = ' ';
+					}
 				}
-				else
-					for (int k = minus_count; k > 1; k--)
+				else {
+					for (int k = minus_count; k > 1; k--) {
 						string[i - k] = ' ';
+					}
+				}
 			}
 			minus_count = 0;
 		}
@@ -750,8 +842,9 @@ int PlusFilter(char* string, int* size_string) {
 				if (i - plus_count == 0 || string[i - plus_count - 1] == '(') {
 					string[i - plus_count] = ' ';
 				}
-				for (int k = plus_count - 1; k > 0; k--)
+				for (int k = plus_count - 1; k > 0; k--) {
 					string[i - k] = ' ';
+				}
 			}
 			plus_count = 0;
 		}
@@ -763,17 +856,20 @@ int PlusFilter(char* string, int* size_string) {
 
 int FindHooks(char* string, int size, int* openHook, int* closeHook) {
 	for (int i = 0; i < size; i++) {
-		if (string[i] == '(')
+		if (string[i] == '(') {
 			*openHook = i;
+		}
 		if (string[i] == ')') {
 			*closeHook = i;
 			break;
 		}
 	}
-	if (*openHook == *closeHook)
+	if (*openHook == *closeHook) {
 		return 1;
-	else
+	}
+	else {
 		return 0;
+	}
 }
 
 
@@ -782,24 +878,31 @@ int HooksTest(char* string, int* _size_string, int* begin, int* end) {
 
 	FindHooks(string, *_size_string, &openHook, &closeHook);
 	if (openHook != closeHook) {
-		if (openHook == -1 || closeHook == -1)
+		if (openHook == -1 || closeHook == -1) {
 			return 2;
-		else if (closeHook - openHook - 1 == 0)
+		}
+		else if (closeHook - openHook - 1 == 0) {
 			return 2;
+		}
 		else {
 			if (closeHook - openHook - 1 == 1) {
-				if (isdigit(string[openHook + 1]) == 0)
+				if (isdigit(string[openHook + 1]) == 0) {
 					return 2;
+				}
 
-				if (openHook != 0 && isdigit(string[openHook - 1]) != 0)
+				if (openHook != 0 && isdigit(string[openHook - 1]) != 0) {
 					return 2;
-				else
+				}
+				else {
 					string[openHook] = ' ';
+				}
 
-				if ((closeHook + 1) != ((*_size_string) - 1) && isdigit(string[closeHook + 1]) != 0)
+				if ((closeHook + 1) != ((*_size_string) - 1) && isdigit(string[closeHook + 1]) != 0) {
 					return 2;
-				else
+				}
+				else {
 					string[closeHook] = ' ';
+				}
 
 				DeleteSpaces(string, _size_string);
 				MinusFilter(string, _size_string);
@@ -869,11 +972,15 @@ int CheckLexic(char* string, int size_string) {
 			oldZnak.type = NOTYPE;
 			oldZnak.point = 0;
 		}
+		else {
+			//no
+		}
 
-		if (newZnak.type != NOTYPE && oldZnak.type != NOTYPE)
-			if (newZnak.point - oldZnak.point > 1 && (newZnak.type == oldZnak.type || (oldZnak.type == DIGIT && newZnak.type == EXPONENT) || (newZnak.type == DIGIT && oldZnak.type == EXPONENT)))
+		if (newZnak.type != NOTYPE && oldZnak.type != NOTYPE) {
+			if (newZnak.point - oldZnak.point > 1 && (newZnak.type == oldZnak.type || (oldZnak.type == DIGIT && newZnak.type == EXPONENT) || (newZnak.type == DIGIT && oldZnak.type == EXPONENT))) {
 				return -1;
-
+			}
+		}
 	}
 
 	return 0;
@@ -883,31 +990,40 @@ int CheckLexic(char* string, int size_string) {
 
 int CheckExp(char* string, int size_string) {
 	for (int i = 1; i < size_string; i++) {
-		if (string[i] == 'E' && isdigit(string[i - 1]) != 0)
+		if (string[i] == 'E' && isdigit(string[i - 1]) != 0) {
 			string[i] = 'e';
-		if (string[i] == 'e' && isdigit(string[i - 1]) != 0)
+		}
+		if (string[i] == 'e' && isdigit(string[i - 1]) != 0) {
 			if (i + 1 < size_string) {
-				if (isdigit(string[i + 1]) == 0 && string[i + 1] != '+' && string[i + 1] != '-')
+				if (isdigit(string[i + 1]) == 0 && string[i + 1] != '+' && string[i + 1] != '-') {
 					return -1;
+				}
 				if (string[i + 1] == '+' || string[i + 1] == '-') {
 					if (i + 2 < size_string) {
-						if (isdigit(string[i + 2]) == 0)
+						if (isdigit(string[i + 2]) == 0) {
 							return -1;
+						}
 						i += 2;
 					}
-					else
+					else {
 						return -1;
+					}
 				}
-				else
+				else {
 					i++;
+				}
 
-				while (i < size_string && isdigit(string[i]) != 0)
+				while (i < size_string && isdigit(string[i]) != 0) {
 					i++;
-				if (i < size_string && string[i] != ')' && string[i] != '*' && string[i] != '/' && string[i] != '+' && string[i] != '-' && string[i] != '^' && string[i] != ',')
+				}
+				if (i < size_string && string[i] != ')' && string[i] != '*' && string[i] != '/' && string[i] != '+' && string[i] != '-' && string[i] != '^' && string[i] != ',') {
 					return -1;
+				}
 			}
-			else
+			else {
 				return -1;
+			}
+	}
 	}
 	return 0;
 }
@@ -921,8 +1037,9 @@ int CheckList(char* string, int* size_string, double* result, char* name) {
 	*result = 0;
 
 	for (int i = 0; i < *size_string; i++) {
-		if (string[i] == '=')
+		if (string[i] == '=') {
 			beginE = i;
+		}
 		if (string[i] == ';') {
 			endE = i;
 			break;
@@ -932,15 +1049,20 @@ int CheckList(char* string, int* size_string, double* result, char* name) {
 	if (beginE != -1 && endE != -1) {
 		*result = Calculate(string + beginE + 1, endE - beginE - 1, &err_code);
 	}
-	else return -1;
-
-	if (err_code != 0)
-		return -2;
 	else {
-		if (isalpha(string[beginE - 1]) != 0)
+		return -1;
+	}
+
+	if (err_code != 0) {
+		return -2;
+	}
+	else {
+		if (isalpha(string[beginE - 1]) != 0) {
 			*name = string[beginE - 1];
-		else
+		}
+		else {
 			return -3;
+		}
 		
 		for (int i = beginE - 1; i <= endE; i++) {
 			string[i] = ' ';
@@ -954,8 +1076,9 @@ int CheckList(char* string, int* size_string, double* result, char* name) {
 
 int FindVariable(char sym, VARIABLES* variable, int sizeVariables) {
 	for (int i = 0; i < sizeVariables; i++) {
-		if (variable[i].name == sym)
+		if (variable[i].name == sym) {
 			return i;
+		}
 	}
 	return -1;
 }

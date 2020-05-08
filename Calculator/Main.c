@@ -38,10 +38,16 @@ int main(int argc, char* argv[]) {
             fprintf(stdout, "%s", "ERROR: can't open file for writing...");
             return 1;
         }
+        else {
+            //no
+        }
     }
     else if (argc > 3) {
         fprintf(stdout, "%s", "ERROR: the count of parametrs isn't correct...");
         return 1;
+    }
+    else {
+        //No
     }
 
     while (StringProcess(Input, Output) == 0) {};
