@@ -9,11 +9,14 @@
 #define EXP 2.7182818284590452
 //arcsin(log(log(1.607200e+001,2.100000e+001)-e,6.200000e+001)) // где-то вылезаю за массив, видимо
 //log(tg(pi/10),floor(arcsin(cos(floor(56)))))
+//С пробелами уже не работает
+//Нужно освобождать память для промежуточных переменных
+//PVS
 double Calculate(char* string, int size_string, int* err_code) {
 	double answer = 0;
 	int num_var = 0, size_numbers = 0, priority_index = 0, num1_index = 0, num2_index = 0, operation = 0, findInd_code = 0, compution = 0;
 	double* numbers = NULL, * temp_numbers = NULL;
-	VARIABLES* variable = NULL, *temp_variable = NULL;
+	VARIABLES* variable = NULL, * temp_variable = NULL;
 
 	//Обрабатываем наши переменные x, y,z
 	variable = malloc(sizeof(VARIABLES));
@@ -24,7 +27,7 @@ double Calculate(char* string, int size_string, int* err_code) {
 		if (temp_variable == NULL) {
 			*err_code = 8;
 			return 8;
- 		}
+		}
 		variable = temp_variable;
 	}
 
@@ -47,17 +50,19 @@ double Calculate(char* string, int size_string, int* err_code) {
 	if (CheckExp(string, size_string) == -1) {
 		*err_code = 12;
 		free(numbers);
+		free(variable);
 		return answer;
 	}
 
 	MinusFilter(string, &size_string);
 	PlusFilter(string, &size_string);
-	*err_code = RecordNumbers(string, size_string, numbers, &size_numbers, &numbers);
+	*err_code = RecordNumbers(string, size_string, numbers, &size_numbers, &numbers, variable, num_var);
 	if (*err_code == 8) {
 		free(numbers);
+		free(variable);
 		return answer;
 	}
-	*err_code = MakeExpressionsString(string, &size_string);
+	*err_code = MakeExpressionsString(string, &size_string, variable, num_var);
 	if (*err_code == 0) {
 		while (size_string != 1) {
 			operation = FindPriority(string, &size_string, &priority_index, numbers);
@@ -75,6 +80,7 @@ double Calculate(char* string, int size_string, int* err_code) {
 			if (size_string == 0) {
 				answer = -1;
 				free(numbers);
+				free(variable);
 				*err_code = 9;
 				return answer;
 			}
@@ -133,17 +139,18 @@ double Calculate(char* string, int size_string, int* err_code) {
 			*err_code = 9;
 	}
 	free(numbers);
+	free(variable);
 	return answer;
 
 }
 
 
 
-int RecordNumbers(char* string, int size_string, double numbers[], int* _size_numbers, double** numbers_pointer) {
-	int size_numbers = 0, point = 0;
+int RecordNumbers(char* string, int size_string, double numbers[], int* _size_numbers, double** numbers_pointer, VARIABLES* variable, int sizeVariables) {
+	int size_numbers = 0, point = 0, numVar = -1;
 	double* temp_numbers = NULL;
 	for (int i = 0; i < size_string; i++) {
-		if (isdigit(string[i]) != 0 || isdigit(string[i]) == '-' || string[i] == 'p' || (string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0))) {
+		if (isdigit(string[i]) != 0 || isdigit(string[i]) == '-' || string[i] == 'p' || (string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) || (isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0))) {
 			if (string[i] == 'p' && string[i + 1] == 'i') {
 				numbers[0] = PI;
 				size_numbers++;
@@ -161,6 +168,16 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 				size_numbers++;
 				point = i + 1;
 				break;
+			}
+			else if (isalpha(string[i]) != 0 && (i-1<0 || isalpha(string[i-1]) == 0) && (i+1>=size_string || isalpha(string[i+1]) == 0)) {
+				numVar = FindVariable(string[i], variable, sizeVariables);
+				if (numVar != -1) {
+					numbers[0] = variable[numVar].result;
+					size_numbers++;
+					point = i + 1;
+					break;
+				}
+
 			}
 
 		}
@@ -180,9 +197,9 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 						return 3;
 					}
 				}
-				while ((isdigit(string[i]) == 0 && i < size_string - 1) && !(i < size_string - 1 && string[i] == 'p' && string[i + 1] == 'i') && !(string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)))
+				while ((isdigit(string[i]) == 0 && i < size_string - 1) && !(i < size_string - 1 && string[i] == 'p' && string[i + 1] == 'i') && !(string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) && !(isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0)))
 					i++;
-				
+
 				if (i != size_string) {
 					if (i < size_string - 1 && string[i] == 'p' && string[i + 1] == 'i') {
 						temp_numbers = realloc(numbers, sizeof(double) * (size_numbers + 1));
@@ -208,7 +225,7 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 						numbers[size_numbers] = EXP;
 						size_numbers++;
 					}
-					else if(isdigit(string[i])!=0 || string[i] == '-') {
+					else if (isdigit(string[i]) != 0 || string[i] == '-') {
 						temp_numbers = realloc(numbers, sizeof(double) * (size_numbers + 1));
 						//temp_numbers = NULL; /////////////////////
 						if (temp_numbers == NULL) {
@@ -220,6 +237,23 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 						numbers[size_numbers] = atof(string + i);
 						size_numbers++;
 					}
+					else if (isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0)) {
+						numVar = FindVariable(string[i], variable, sizeVariables);
+						if (numVar != -1) {
+							temp_numbers = realloc(numbers, sizeof(double) * (size_numbers + 1));
+							//temp_numbers = NULL; /////////////////////
+							if (temp_numbers == NULL) {
+								(*numbers_pointer) = numbers;
+								return 8;
+							}
+							numbers = temp_numbers;
+
+							numbers[size_numbers] = variable[numVar].result;
+							size_numbers++;
+						}
+
+					}
+
 				}
 			}
 		}
@@ -242,9 +276,10 @@ int DeleteSpaces(char* string, int* _size_string) {
 }
 
 //Здесь
-int MakeExpressionsString(char* string, int* _size_string) {
+int MakeExpressionsString(char* string, int* _size_string, VARIABLES* variable, int sizeVariables) {
+	int numVar = -1;
 	for (int i = 0; i < *_size_string; i++) {
-		if (isdigit(string[i]) != 0 || string[i] == 'p' || (string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == (*_size_string) || isalpha(string[i + 1]) == 0))) {
+		if (isdigit(string[i]) != 0 || string[i] == 'p' || (string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == (*_size_string) || isalpha(string[i + 1]) == 0)) || (isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= *_size_string || isalpha(string[i + 1]) == 0))) {
 			if (string[i] == 'p') {
 				if (i < (*_size_string) - 1) {
 					if (string[i + 1] == 'i') {
@@ -259,6 +294,13 @@ int MakeExpressionsString(char* string, int* _size_string) {
 			else if (string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == (*_size_string) || isalpha(string[i + 1]) == 0)) {
 				string[i] = '0';
 				i++;
+			}
+			else if (isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= *_size_string || isalpha(string[i + 1]) == 0)) {
+				numVar = FindVariable(string[i], variable, sizeVariables);
+				if (numVar != -1) {
+					string[i] = '0';
+					i++;
+				}
 			}
 			else {
 				string[i] = '0';
@@ -340,7 +382,7 @@ int FindPriority(char* string, int* _size_string, int* _priority_index, double* 
 				*_priority_index = priority_index;
 			}
 		}
-		
+
 	}
 
 	if (priority_index == 0) {
@@ -385,7 +427,7 @@ int FindLog(char* string, int size_string, int* _priority_index) {
 	}
 
 	return -1;
-	
+
 }
 
 int ReadWord(char* string, int string_size, char* func, int* number_point) {
@@ -631,12 +673,12 @@ int ComputeFunc(char* string, int* size_string, double* numbers, int func_number
 	case 12: //log(0,0) ///////Нужна обработка ОДЗ
 		if (numbers[pointInNumbers] <= 0 || numbers[pointInNumbers + 1] <= 0 || numbers[pointInNumbers] == 1)
 			return -1;
-		numbers[pointInNumbers] = Plog(numbers[pointInNumbers], numbers[pointInNumbers+1]); ///Здесь должен быть не pow
+		numbers[pointInNumbers] = Plog(numbers[pointInNumbers], numbers[pointInNumbers + 1]); ///Здесь должен быть не pow
 		//Меняем массив записывая туда ответ вместо двух слагаемых 
 		for (int i = 1; pointInNumbers + 1 + i < *size_numbers; i++)
 			numbers[pointInNumbers + i] = numbers[pointInNumbers + 1 + i];
 		(*size_numbers)--;
-		
+
 		//Меняем строку, удаляя лог
 		for (int i = 0; i < 3; i++)
 			string[stringPointOfNum + i] = ' ';
@@ -880,7 +922,7 @@ int CheckList(char* string, int* size_string, double* result, char* name) {
 	}
 
 	if (beginE != -1 && endE != -1) {
-		*result = Calculate(string + beginE + 1, endE - beginE-1, &err_code);
+		*result = Calculate(string + beginE + 1, endE - beginE - 1, &err_code);
 	}
 	else return -1;
 
@@ -898,4 +940,14 @@ int CheckList(char* string, int* size_string, double* result, char* name) {
 		DeleteSpaces(string, size_string);
 		return 0;
 	}
+}
+
+
+
+int FindVariable(char sym, VARIABLES* variable, int sizeVariables) {
+	for (int i = 0; i < sizeVariables; i++) {
+		if (variable[i].name == sym)
+			return i;
+	}
+	return -1;
 }
