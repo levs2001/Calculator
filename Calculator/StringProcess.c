@@ -1,3 +1,6 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -5,7 +8,7 @@
 #include "calculationModule.h"
 #define SIMPLE_STRING 0
 #define KOMM_STRING 1
-#define EMPTY_STRING 2
+#define EMPTY_STRING 1
 #define ERR_STRING 3
 #define EOF_STRING 4
 #define NOT_ENOUGH_MEMORY 5
@@ -24,7 +27,7 @@ int StringProcess(FILE* Input, FILE* Output) {
     //temp_string = NULL; //////////
     if (temp_string == NULL) {
         str_type = NOT_ENOUGH_MEMORY;
-        while (symbol != '\n' && symbol != EOF) {
+        while (symbol != '\n' && (int)symbol != EOF) {
             size++;
             symbol = (char)getc(Input);
         }
@@ -35,7 +38,7 @@ int StringProcess(FILE* Input, FILE* Output) {
             eof_detector = END_NEW_STRING;
             PrintAnswer(Output, str_type, size, string);
         }
-        else if (symbol == EOF) {
+        else if ((int)symbol == EOF) {
             eof_detector = END_EOF;
             if (size != 2)
                 PrintAnswer(Output, str_type, size, string);
@@ -46,7 +49,7 @@ int StringProcess(FILE* Input, FILE* Output) {
     string[0] = (char)getc(Input);
 
     //Этот if нужен для того, чтобы в случае когда строка состоит из одного EOF ничего не выводить и при '\n' выводить '\n'
-    if (string[0] == EOF)
+    if ((int)string[0] == EOF)
         eof_detector = END_EOF;
     else if (string[0] == '\n') {
         eof_detector = END_NEW_STRING;
@@ -63,7 +66,7 @@ int StringProcess(FILE* Input, FILE* Output) {
                 eof_detector = END_NEW_STRING;
                 return eof_detector;
             }
-            if (string[size - 1] == EOF)
+            if ((int)string[size - 1] == EOF)
                 eof_detector = END_EOF;
             else if (string[size - 1] == '\n')
                 eof_detector = END_NEW_STRING;
@@ -91,7 +94,7 @@ char* InsertSymbol(FILE* Input, char* string, int* size)
     //temp_string = NULL; /////////////
     if (temp_string == NULL) {
         *size = -1;
-        while (symbol != '\n' && symbol != EOF)
+        while (symbol != '\n' && (int)symbol != EOF)
             symbol = (char)getc(Input);
         return string;
     }
@@ -219,10 +222,10 @@ void PrintAnswer(FILE* Output, int str_type, int size, char* string) {
         fprintf(Output, "%s\n", string);
         str_type = 0;
         break;
-    case EMPTY_STRING:
+    /*case EMPTY_STRING:
         fprintf(Output, "%s\n", string);
         str_type = 0;
-        break;
+        break;*/
     case ERR_STRING:
         fprintf(Output, "%s == %s\n", string, "ERROR: error on first");
         str_type = 0;

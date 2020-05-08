@@ -1,3 +1,6 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+
 #include "calculationModule.h"
 #include <stdlib.h>
 #include <ctype.h>
@@ -20,7 +23,10 @@ double Calculate(char* string, int size_string, int* err_code) {
 
 	//Обрабатываем наши переменные x, y,z
 	variable = malloc(sizeof(VARIABLES));
-
+	if (variable == NULL) {
+		*err_code = 8;
+		return 8;
+	}
 	while (CheckList(string, &size_string, &(variable[num_var].result), &(variable[num_var].name)) == 0) {
 		num_var++;
 		temp_variable = realloc(variable, sizeof(VARIABLES) * (num_var + 1));
@@ -150,7 +156,7 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 	int size_numbers = 0, point = 0, numVar = -1;
 	double* temp_numbers = NULL;
 	for (int i = 0; i < size_string; i++) {
-		if (isdigit(string[i]) != 0 || isdigit(string[i]) == '-' || string[i] == 'p' || (string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) || (isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0))) {
+		if (isdigit(string[i]) != 0 || string[i] == 'p' || (string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) || (isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0))) {
 			if (string[i] == 'p' && string[i + 1] == 'i') {
 				numbers[0] = PI;
 				size_numbers++;
@@ -163,7 +169,7 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 				point = i + 1;
 				break;
 			}
-			else if (isdigit(string[i]) != 0 || isdigit(string[i]) == '-') { //проверить вот этот момент
+			else if (isdigit(string[i]) != 0) { //проверить вот этот момент
 				numbers[0] = atof(string + i);
 				size_numbers++;
 				point = i + 1;
@@ -197,7 +203,7 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 						return 3;
 					}
 				}
-				while ((isdigit(string[i]) == 0 && i < size_string - 1) && !(i < size_string - 1 && string[i] == 'p' && string[i + 1] == 'i') && !(string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) && !(isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0)))
+				while ((i < size_string - 1 && isdigit(string[i]) == 0) && !(i < size_string - 1 && string[i] == 'p' && string[i + 1] == 'i') && !(string[i] == 'e' && (i == 0 || isdigit(string[i - 1]) == 0) && (i + 1 == size_string || isalpha(string[i + 1]) == 0)) && !(isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0)))
 					i++;
 
 				if (i != size_string) {
@@ -422,7 +428,6 @@ int FindLog(char* string, int size_string, int* _priority_index) {
 		log_having = false;
 
 	if (log_having == true) {
-		*_priority_index = priority_index;
 		return 0;
 	}
 
@@ -701,7 +706,7 @@ int MinusFilter(char* string, int* size_string) {
 	int minus_count = 0;
 	for (int i = 0; i < *size_string; i++) {
 		if (string[i] == '-') {
-			while (string[i] == '-' && i < *size_string) {
+			while (i < *size_string && string[i] == '-') {
 				minus_count++;
 				i++;
 			}//Здесь
@@ -734,7 +739,7 @@ int PlusFilter(char* string, int* size_string) {
 	int plus_count = 0;
 	for (int i = 0; i < *size_string; i++) {
 		if (string[i] == '+') {
-			while (string[i] == '+' && i < *size_string) {
+			while (i < *size_string && string[i] == '+') {
 				plus_count++;
 				i++;
 			}//Здесь
@@ -827,7 +832,7 @@ int CheckLexic(char* string, int size_string) {
 	newZnak.point = 0;
 	oldZnak.point = 0;
 	newZnak.type = NOTYPE;
-	oldZnak.point = NOTYPE;
+	oldZnak.type = NOTYPE;
 
 	for (int i = 0; i < size_string; i++) {
 
