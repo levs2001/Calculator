@@ -1,6 +1,6 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
+//-V2008_CYCLOMATIC_COMPLEXITY=50
 #include "calculationModule.h"
 #include <stdlib.h>
 #include <ctype.h>
@@ -46,7 +46,7 @@ double Calculate(char* string, int size_string, int* err_code) {
 
 	
 
-	temp_numbers = realloc(numbers, sizeof(double) * (size_numbers + 1));
+	temp_numbers = realloc(numbers, sizeof(double) * size_numbers + sizeof(double));
 	//temp_numbers = NULL; /////////////////////
 	if (temp_numbers == NULL) {
 		*err_code = 8;
