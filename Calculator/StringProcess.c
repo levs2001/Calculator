@@ -120,7 +120,7 @@ int CheckString(char* string, int size)
         return str_type;
     }
     for (int i = index; i < size - 1; i++) {
-        if (string[i] < 0 || !(isspace(string[i]) || isalnum(string[i]) || string[i] == '(' || string[i] == ')' || string[i] == '+' || string[i] == '-' || string[i] == '*' || string[i] == '/' || string[i] == '^' || string[i] == '.' || string[i] == ',')) {
+        if (string[i] < 0 || !(isspace(string[i]) || isalnum(string[i]) || string[i] == '(' || string[i] == ')' || string[i] == '+' || string[i] == '-' || string[i] == '*' || string[i] == '/' || string[i] == '^' || string[i] == '.' || string[i] == ',' || string[i] == ';' || string[i] == '=')) {
             string[size - 1] = '\0';
             str_type = ERR_STRING;
             return str_type;

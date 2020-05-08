@@ -11,8 +11,22 @@
 //log(tg(pi/10),floor(arcsin(cos(floor(56)))))
 double Calculate(char* string, int size_string, int* err_code) {
 	double answer = 0;
-	int size_numbers = 0, priority_index = 0, num1_index = 0, num2_index = 0, operation = 0, findInd_code = 0, compution = 0;
+	int num_var = 0, size_numbers = 0, priority_index = 0, num1_index = 0, num2_index = 0, operation = 0, findInd_code = 0, compution = 0;
 	double* numbers = NULL, * temp_numbers = NULL;
+	VARIABLES* variable = NULL, *temp_variable = NULL;
+
+	//Обрабатываем наши переменные x, y,z
+	variable = malloc(sizeof(VARIABLES));
+
+	while (CheckList(string, &size_string, &(variable[num_var].result), &(variable[num_var].name)) == 0) {
+		num_var++;
+		temp_variable = realloc(variable, sizeof(VARIABLES) * (num_var + 1));
+		if (temp_variable == NULL) {
+			*err_code = 8;
+			return 8;
+ 		}
+		variable = temp_variable;
+	}
 
 	if (CheckLexic(string, size_string) == -1) {
 		*err_code = 11;
@@ -846,4 +860,42 @@ int CheckExp(char* string, int size_string) {
 				return -1;
 	}
 	return 0;
+}
+
+
+
+
+int CheckList(char* string, int* size_string, double* result, char* name) {
+	int beginE = -1, endE = -1;
+	int err_code;
+	*result = 0;
+
+	for (int i = 0; i < *size_string; i++) {
+		if (string[i] == '=')
+			beginE = i;
+		if (string[i] == ';') {
+			endE = i;
+			break;
+		}
+	}
+
+	if (beginE != -1 && endE != -1) {
+		*result = Calculate(string + beginE + 1, endE - beginE-1, &err_code);
+	}
+	else return -1;
+
+	if (err_code != 0)
+		return -2;
+	else {
+		if (isalpha(string[beginE - 1]) != 0)
+			*name = string[beginE - 1];
+		else
+			return -3;
+
+		for (int i = beginE - 1; i <= endE; i++) {
+			string[i] = ' ';
+		}
+		DeleteSpaces(string, size_string);
+		return 0;
+	}
 }

@@ -1,4 +1,8 @@
 #pragma once
+typedef struct {
+	double result;
+	char name;
+}VARIABLES;
 
 double Calculate(char* string, int size, int* err_code);
 int RecordNumbers(char* string, int size_string, double numbers[], int* size_numbers, double** numbers_pointer);
@@ -18,3 +22,4 @@ int CheckLexic(char* string, int size_string);
 int CheckExp(char* string, int size_string);
 int FindLog(char* string, int size_string, int* _priority_index);
 double Plog(double a, double b);
+int CheckList(char* string, int size_string, double* result, char* name);
