@@ -4,8 +4,8 @@ typedef struct {
 	char name;
 }VARIABLES;
 
-double Calculate(char* string, int size, int* err_code);
-int RecordNumbers(char* string, int size_string, double numbers[], int* _size_numbers, double** numbers_pointer, VARIABLES* variable, int sizeVariables);
+double Calculate(char* string, int size, int* err_code, VARIABLES** variable, int* num_var);
+int RecordNumbers(char* string, int size_string, double numbers[], int* _size_numbers, double** numbers_pointer, VARIABLES** variable, int* sizeVariables);
 int DeleteSpaces(char* string, int* size);
 int MakeExpressionsString(char* string, int* _size_string, VARIABLES* variable, int sizeVariables);
 int FindPriority(char* string, int* _size_string, int* _priority_index, double* numbers);
@@ -22,7 +22,7 @@ int CheckLexic(char* string, int size_string);
 int CheckExp(char* string, int size_string);
 int FindLog(char* string, int size_string, int* _priority_index);
 double Plog(double a, double b);
-int CheckList(char* string, int* size_string, double* result, char* name);
+int CheckList(char* string, int* size_string, VARIABLES** variable, int* num_var);
 int FindVariable(char sym, VARIABLES* variable, int sizeVariables);
 int CheckForNumFunc(char* string, int size_string, int i);
 int  CheckForSign(char* string, int i);

@@ -215,10 +215,14 @@ int CheckHooks(char* string, int size) {
 void PrintAnswer(FILE* Output, int str_type, int size, char* string) {
 	int err_code = 0;
 	double answer = 0;
+	VARIABLES* variable = NULL;
+	int num_var = 0;
+
 	switch (str_type) {
 	case SIMPLE_STRING:
 		fprintf(Output, "%s == ", string);
-		answer = Calculate(string, size - 1, &err_code);
+		answer = Calculate(string, size - 1, &err_code, &variable, &num_var);
+		free(variable);
 		if (err_code == 0) {
 			fprintf(Output, "%g\n", answer);
 		}

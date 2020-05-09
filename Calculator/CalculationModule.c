@@ -15,11 +15,11 @@
 //— пробелами уже не работает
 //Ќужно освобождать пам€ть дл€ промежуточных переменных
 //PVS
-double Calculate(char* string, int size_string, int* err_code) {
+double Calculate(char* string, int size_string, int* err_code, VARIABLES** variable, int* num_var) {
 	double answer = 0;
-	int num_var = 0, size_numbers = 0, priority_index = 0, num1_index = 0, num2_index = 0, operation = 0, findInd_code = 0, compution = 0;
+	int size_numbers = 0, priority_index = 0, num1_index = 0, num2_index = 0, operation = 0, findInd_code = 0, compution = 0;
 	double* numbers = NULL, * temp_numbers = NULL;
-	VARIABLES* variable = NULL, * temp_variable = NULL;
+	VARIABLES* temp_variable = NULL;
 
 
 	if (CheckLexic(string, size_string) == -1) {
@@ -28,21 +28,22 @@ double Calculate(char* string, int size_string, int* err_code) {
 	}
 	DeleteSpaces(string, &size_string);
 
-	//ќбрабатываем наши переменные x, y,z
-	variable = malloc(sizeof(VARIABLES));
-	if (variable == NULL) {
+	temp_variable = realloc(*variable, sizeof(VARIABLES) * (*num_var + 1));
+	if (temp_variable == NULL) {
 		*err_code = 8;
 		return 8;
 	}
-	while (CheckList(string, &size_string, &(variable[num_var].result), &(variable[num_var].name)) == 0) {
-		num_var++;
-		temp_variable = realloc(variable, sizeof(VARIABLES) * (num_var + 1));
+	*variable = temp_variable;
+	//ќбрабатываем наши переменные x, y,z
+	while (CheckList(string, &size_string, variable, num_var) == 0) {
+		(*num_var)++;
+		temp_variable = realloc(*variable, sizeof(VARIABLES) * (*num_var + 1));
 		if (temp_variable == NULL) {
 			*err_code = 8;
 			return 8;
 		}
-		variable = temp_variable;
-	}
+		*variable = temp_variable;
+	 } 
 
 	
 
@@ -59,7 +60,7 @@ double Calculate(char* string, int size_string, int* err_code) {
 	if (CheckExp(string, size_string) == -1) {
 		*err_code = 12;
 		free(numbers);
-		free(variable);
+		
 		return answer;
 	}
 
@@ -68,10 +69,10 @@ double Calculate(char* string, int size_string, int* err_code) {
 	*err_code = RecordNumbers(string, size_string, numbers, &size_numbers, &numbers, variable, num_var);
 	if (*err_code == 8) {
 		free(numbers);
-		free(variable);
+		
 		return answer;
 	}
-	*err_code = MakeExpressionsString(string, &size_string, variable, num_var);
+	*err_code = MakeExpressionsString(string, &size_string, *variable, *num_var);
 	if (*err_code == 0) {
 		while (size_string != 1) {
 			operation = FindPriority(string, &size_string, &priority_index, numbers);
@@ -92,7 +93,7 @@ double Calculate(char* string, int size_string, int* err_code) {
 			if (size_string == 0) {
 				answer = -1;
 				free(numbers);
-				free(variable);
+				
 				*err_code = 9;
 				return answer;
 			}
@@ -161,14 +162,14 @@ double Calculate(char* string, int size_string, int* err_code) {
 		}
 	}
 	free(numbers);
-	free(variable);
+	
 	return answer;
 
 }
 
 
 
-int RecordNumbers(char* string, int size_string, double numbers[], int* _size_numbers, double** numbers_pointer, VARIABLES* variable, int sizeVariables) {
+int RecordNumbers(char* string, int size_string, double numbers[], int* _size_numbers, double** numbers_pointer, VARIABLES** variable, int* sizeVariables) {
 	int size_numbers = 0, point = 0, numVar = -1;
 	double* temp_numbers = NULL;
 	char* end;
@@ -193,9 +194,9 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 				break;
 			}
 			else if (isalpha(string[i]) != 0 && (i-1<0 || isalpha(string[i-1]) == 0) && (i+1>=size_string || isalpha(string[i+1]) == 0)) {
-				numVar = FindVariable(string[i], variable, sizeVariables);
+				numVar = FindVariable(string[i], *variable, *sizeVariables);
 				if (numVar != -1) {
-					numbers[0] = variable[numVar].result;
+					numbers[0] = (*variable)[numVar].result;
 					size_numbers++;
 					point = i + 1;
 					break;
@@ -264,7 +265,7 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 						size_numbers++;
 					}
 					else if (isalpha(string[i]) != 0 && (i - 1 < 0 || isalpha(string[i - 1]) == 0) && (i + 1 >= size_string || isalpha(string[i + 1]) == 0)) {
-						numVar = FindVariable(string[i], variable, sizeVariables);
+						numVar = FindVariable(string[i], *variable, *sizeVariables);
 						if (numVar != -1) {
 							temp_numbers = realloc(numbers, sizeof(double) * (size_numbers + 1));
 							//temp_numbers = NULL; /////////////////////
@@ -274,7 +275,7 @@ int RecordNumbers(char* string, int size_string, double numbers[], int* _size_nu
 							}
 							numbers = temp_numbers;
 
-							numbers[size_numbers] = variable[numVar].result;
+							numbers[size_numbers] = (*variable)[numVar].result;
 							size_numbers++;
 						}
 
@@ -1053,10 +1054,10 @@ int CheckExp(char* string, int size_string) {
 
 
 
-int CheckList(char* string, int* size_string, double* result, char* name) {
+int CheckList(char* string, int* size_string, VARIABLES** variable, int* num_var) {
 	int beginE = -1, endE = -1;
 	int err_code;
-	*result = 0;
+	(*variable)[*num_var].result = 0;
 
 	for (int i = 0; i < *size_string; i++) {
 		if (string[i] == '=') {
@@ -1067,9 +1068,8 @@ int CheckList(char* string, int* size_string, double* result, char* name) {
 			break;
 		}
 	}
-
 	if (beginE != -1 && endE != -1) {
-		*result = Calculate(string + beginE + 1, endE - beginE - 1, &err_code);
+		(*variable)[*num_var].result = Calculate(string + beginE + 1, endE - beginE - 1, &err_code, variable, num_var);
 	}
 	else {
 		return -1;
@@ -1080,7 +1080,7 @@ int CheckList(char* string, int* size_string, double* result, char* name) {
 	}
 	else {
 		if (isalpha(string[beginE - 1]) != 0) {
-			*name = string[beginE - 1];
+			(*variable)[*num_var].name = string[beginE - 1];
 		}
 		else {
 			return -3;
