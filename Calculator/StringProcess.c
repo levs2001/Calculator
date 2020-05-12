@@ -24,7 +24,7 @@ int StringProcess(FILE* Input, FILE* Output) {
 	char* string = NULL, * temp_string = NULL;
 	char symbol = '\0';
 	temp_string = (char*)malloc(++size);
-	//temp_string = NULL; //////////
+	
 	if (temp_string == NULL) {
 		str_type = NOT_ENOUGH_MEMORY;
 		while (symbol != '\n' && (int)symbol != EOF) {

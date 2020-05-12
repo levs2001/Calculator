@@ -27,3 +27,6 @@ int FindVariable(char sym, VARIABLES* variable, int sizeVariables);
 int CheckForNumFunc(char* string, int size_string, int i);
 int  CheckForSign(char* string, int i);
 int CheckForGoingStringInNumbers(char* string, int size_string, int i);
+
+
+//Change to see
