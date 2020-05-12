@@ -10,11 +10,8 @@
 #include <stdbool.h>
 #define PI 3.1415926535897932
 #define EXP 2.7182818284590452
-//arcsin(log(log(1.607200e+001,2.100000e+001)-e,6.200000e+001)) // где-то вылезаю за массив, видимо
-//log(tg(pi/10),floor(arcsin(cos(floor(56)))))
-//С пробелами уже не работает
-//Нужно освобождать память для промежуточных переменных
-//PVS
+
+
 double Calculate(char* string, int size_string, int* err_code, VARIABLES** variable, int* num_var) {
 	double answer = 0;
 	int size_numbers = 0, priority_index = 0, num1_index = 0, num2_index = 0, operation = 0, findInd_code = 0, compution = 0;
@@ -48,7 +45,7 @@ double Calculate(char* string, int size_string, int* err_code, VARIABLES** varia
 	
 
 	temp_numbers = realloc(numbers, sizeof(double) * size_numbers + sizeof(double));
-	//temp_numbers = NULL; /////////////////////
+	
 	if (temp_numbers == NULL) {
 		*err_code = 8;
 		return answer;
